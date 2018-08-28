@@ -18,6 +18,8 @@ noremap <Leader>v :<C-u>vsplit<CR>
 
 noremap <silent> <leader>; A;<esc>
 noremap <silent> <leader>, A,<esc>
+noremap <silent> <C-;> A;<esc>
+noremap <silent> <C-,> A,<esc>
 
 noremap <silent> <leader>l <C-W><C-L>
 noremap <silent> <leader>h <C-W><C-H>
