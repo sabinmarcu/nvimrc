@@ -49,23 +49,26 @@ let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_javascript_eslint_exe = 'yarn lint --'
 
 " Machine Dependent Settings
-let local_config = expand("~/.nvimrc")
-if filereadable(local_config)
-    source local_config
+if filereadable(expand("~/.nvimrc"))
+    source ~/.nvimrc
 endif
 
 " Project Settings
-let g:projects_path = expand(get(g:, 'projects_path', '~/Projects'))
-if isdirectory(g:projects_path)
+let g:projects_paths = expand(get(g:, 'projects_paths', '~/Projects'))
+let projects_paths = split(g:projects_paths)
+if isdirectory(expand(projects_paths[0]))
     let g:project_enable_welcome = 0
     let g:project_use_nerdtree = 1
-    call project#rc(g:projects_path)
-    let projects = system("ls " . g:projects_path)
-    for project in split(projects)
-        let project_path = g:projects_path . "/" . project
-        if isdirectory(project_path)
-            Project project_path
-        endif
+    call project#rc(expand(projects_paths[0]))
+    for projects_path in projects_paths
+        let projects_path = expand(projects_path)
+        let projects = system("ls " . projects_path)
+        for project in split(projects)
+            let project_path = projects_path . "/" . project
+            if isdirectory(project_path)
+                Project project_path
+            endif
+        endfor
     endfor
     if argc() == 0
         Welcome
