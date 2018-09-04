@@ -8,7 +8,54 @@ else
     endif
 endif
 
-colorscheme iosvkem
+colorscheme Tomorrow-Night
+
+set cursorline
+set list
+set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<,space:.
+
+set history=1000
+
+au BufWinLeave *.* silent! mkview  "make vim save view (state) (folds, cursor, etc)
+au BufWinEnter *.* silent! loadview "make vim load view (state) (folds, cursor, etc)
+
+set backup
+if has('persistent_undo')
+    set undofile
+    set undolevels=1000
+    set undoreload=10000
+endif
+
+function! InitializeDirectories()
+    let separator = "."
+    let parent = $HOME
+    let prefix = '.vim'
+    let dir_list = {
+                \ 'backup': 'backupdir',
+                \ 'views': 'viewdir',
+                \ 'swap': 'directory' }
+
+    if has('persistent_undo')
+        let dir_list['undo'] = 'undodir'
+    endif
+
+    for [dirname, settingname] in items(dir_list)
+        let directory = parent . '/' . prefix . dirname . "/"
+        if exists("*mkdir")
+            if !isdirectory(directory)
+                call mkdir(directory)
+            endif
+        endif
+        if !isdirectory(directory)
+            echo "Warning: Unable to create backup directory: " . directory
+            echo "Try: mkdir -p " . directory
+        else
+            let directory = substitute(directory, " ", "\\\\ ", "g")
+            exec "set " . settingname . "=" . directory
+        endif
+    endfor
+endfunction
+call InitializeDirectories()
 
 noremap <silent> <leader>t :NERDTreeToggle<CR>
 noremap <silent> <C-E> :NERDTreeToggle<CR>
@@ -71,3 +118,13 @@ if isdirectory(g:projects_path)
         Welcome
     endif
 endif
+
+function FixEslintAndReopen()
+    if executable(eslint)
+        !eslint --fix %
+        edit!
+    endif
+endfunction
+
+autocmd FileType js,jsx
+    \ autocmd BufWritePre * call FixEslintAndReopen()
